@@ -39,13 +39,22 @@ func TestVxNET_UploadVxImg(t *testing.T) {
 	vxNET := GetVxNet()
 	url := vxNET.UploadVxImg("media", "E:/codelab/go/zhanqiTV/vxgo/demo.jpg")
 	news := VxNews{
-		Title:        "欧文融通马拉碌碌无为二等分23, 图片内问题",
-		Authod:       "罗大文",
-		ThumbMediaId: "drwaZ2CgYKBpJE7GXmYSXPNSX_O5SLf4P5oyx_aiMLo",
-		Content:      fmt.Sprintf("<h1>测试一下图片信息</h1><img src=\"%s\"/>=====", url),
+		Title:            "欧文融通马拉碌碌无为二等分23, 图片内问题",
+		Authod:           "罗大文",
+		ThumbMediaId:     "drwaZ2CgYKBpJE7GXmYSXPNSX_O5SLf4P5oyx_aiMLo",
+		Content:          fmt.Sprintf("<h1>测试一下图片信息</h1><img src=\"%s\"/>=====", url),
 		ContentSourceUrl: "https://loovien.github.io/2020/01/01/2020/",
-		ShowCoverPic: "1",
+		ShowCoverPic:     "1",
 	}
 	ok := vxNET.PostVxNews(news)
 	t.Log(ok)
+}
+
+func TestGetDirFiles(t *testing.T) {
+	files := GetDirFiles("D:/codelab/zhanqiTV/go/vxgo")
+	t.Logf("%#v\n", files)
+}
+
+func TestGitClone(t *testing.T) {
+	CloneRepo()
 }

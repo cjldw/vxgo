@@ -9,11 +9,12 @@ import (
 )
 
 type CFG struct {
-	AppId     string `json:"appId"`
-	AppSecret string `json:"appSecret"`
+	AppId       string `json:"appId"`
+	AppSecret   string `json:"appSecret"`
+	GitRepo     string `json:"gitRepo"`
+	GitRepoName string `json:"gitRepoName"`
+	WorkDir     string `json:"workDir"`
 }
-
-
 
 var (
 	VxCfg = &CFG{}
@@ -28,8 +29,11 @@ func init() {
 	if err != nil {
 		log.Printf("file not found: %s \n", cfgFile)
 		VxCfg = &CFG{
-			AppId:     appId,
-			AppSecret: appSecret,
+			AppId:       appId,
+			AppSecret:   appSecret,
+			GitRepo:     gitRepo,
+			GitRepoName: gitRepoName,
+			WorkDir:     workDir,
 		}
 		return
 	}

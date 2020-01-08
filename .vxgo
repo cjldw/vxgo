@@ -1,0 +1,7 @@
+{
+    "appId":"wx59bce618019e60cf",
+	"appSecret":"7c6b8bc4ecb1c78aba481c52014f572f",
+	"gitRepo": "https://github.com/loovien/blog-code.git",
+	"gitRepoName":"blog-code",
+	"workDir":"/tmp/"
+}
