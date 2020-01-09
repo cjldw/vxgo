@@ -58,3 +58,11 @@ func TestGetDirFiles(t *testing.T) {
 func TestGitClone(t *testing.T) {
 	CloneRepo()
 }
+
+func TestPullRepo(t *testing.T) {
+	PullRepo()
+}
+
+func TestGitShowCase(t *testing.T) {
+	GitShowCase()
+}

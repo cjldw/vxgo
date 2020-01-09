@@ -8,7 +8,7 @@ import (
 )
 
 func CloneRepo() {
-	r, err := git.PlainClone(VxCfg.WorkDir, false, &git.CloneOptions{
+	r, err := git.PlainClone(filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName), false, &git.CloneOptions{
 		URL: VxCfg.GitRepo,
 	})
 	if err != nil {
@@ -50,6 +50,34 @@ func PullRepo() {
 	})
 	if err != nil {
 		log.Fatalf("git pull repository failure: %v\n", err)
+	}
+	ref, err := r.Head()
+	if err != nil {
+		log.Fatalf("git checkout HEAD failure: %v\n", err)
+	}
+	commit, err := r.CommitObject(ref.Hash())
+	if err != nil {
+		log.Fatalf("git commit log failure: %v\n", err)
+	}
+	tree, err := commit.Tree()
+	if err != nil {
+		log.Fatalf("git get tree failure: %v\n", err)
+	}
+	err = tree.Files().ForEach(func(file *object.File) error {
+		log.Println("===================")
+		log.Println(file.Name)
+		log.Println("===================")
+		return nil
+	})
+	if err != nil {
+		log.Fatalf("git worktree files failure: %v\n", err)
+	}
+}
+
+func GitShowCase() {
+	r, err := git.PlainOpen(filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName))
+	if err != nil {
+		log.Fatalf("open git repository failure: %v\n", err)
 	}
 	ref, err := r.Head()
 	if err != nil {
