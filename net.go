@@ -3,6 +3,7 @@ package vxgo
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io"
 	"io/ioutil"
@@ -33,37 +34,45 @@ func GetVxNet() *VxNET {
 	return vxNET
 }
 
-func (vn *VxNET) GetAccessToken() string {
+func (vn *VxNET) GetAccessToken() (string, error) {
 	if vn.accessToken.ExpiresIn > int(time.Now().Unix()) {
-		return vn.accessToken.AccessToken
+		return vn.accessToken.AccessToken, nil
 	}
 	tokenURL := fmt.Sprintf(accessTokenURL, VxCfg.AppId, VxCfg.AppSecret)
 	response, err := http.Get(tokenURL)
 	if err != nil {
 		log.Printf("fetch WeChat access_token failure:%v\n", err)
-		return ""
+		return "", err
 	}
 	defer response.Body.Close()
 	respBytes, err := ioutil.ReadAll(response.Body)
 	if err != nil {
 		log.Printf("read access_token response failure: %#v\n", err)
-		return ""
+		return "", err
 	}
 	accessToken := &VxAccessToken{}
 	err = json.Unmarshal(respBytes, accessToken)
 	if err != nil {
 		log.Printf("unmarshal access_token failure: %#v\n", err)
-		return ""
+		return "", err
+	}
+	if len(accessToken.AccessToken) <= 0 {
+		log.Printf("get WeChat access_token failure: %s\n", string(respBytes))
+		return "", errors.New(string(respBytes))
 	}
 	vn.accessToken = &VxAccessToken{
 		AccessToken: accessToken.AccessToken,
 		ExpiresIn:   accessToken.ExpiresIn + int(time.Now().Unix()),
 	}
-	return accessToken.AccessToken
+	return accessToken.AccessToken, nil
 }
 
 func (vn *VxNET) PostPersistentMaterial(fileName, filePath, typ string, params ...map[string]string) *VxMaterial {
-	mURL := fmt.Sprintf(materialURL, vn.GetAccessToken(), typ)
+	accessToken, err := vn.GetAccessToken()
+	if err != nil {
+		log.Fatal(err)
+	}
+	mURL := fmt.Sprintf(materialURL, accessToken, typ)
 	buffer := &bytes.Buffer{}
 	partBody := multipart.NewWriter(buffer)
 
@@ -105,25 +114,35 @@ func (vn *VxNET) PostPersistentMaterial(fileName, filePath, typ string, params .
 	return material
 }
 
-func (vn *VxNET) PostVxNews(news VxNews) bool {
-	newsUrl := fmt.Sprintf(addNewsURL, vn.GetAccessToken())
+func (vn *VxNET) PostVxNews(news []*VxNews) (*VxMaterial, error) {
+	token, err := vn.GetAccessToken()
+	if err != nil {
+		return nil, err
+	}
+	newsUrl := fmt.Sprintf(addNewsURL, token)
 	vxNews := VxNewsForm{
-		Articles: []VxNews{news},
+		Articles: news,
 	}
 	newBytes, _ := json.Marshal(vxNews)
 	formReader := bytes.NewReader(newBytes)
 	response, err := http.Post(newsUrl, "application/json;charset=utf8", formReader)
 	if err != nil {
 		log.Printf("post news to WeChat failure: data:%#v,  err: %#v\n", vxNews, err)
-		return false
+		return nil, err
 	}
 	defer response.Body.Close()
 	respBytes, _ := ioutil.ReadAll(response.Body)
 	log.Printf("post news to WeChat result: %s\n", string(respBytes))
-	return true
+	vxMaterial := new(VxMaterial)
+	err = json.Unmarshal(respBytes, vxMaterial)
+	if err != nil {
+		log.Printf("unmarshal post news response failure: %v\n", err)
+		return nil, err
+	}
+	return vxMaterial, nil
 }
 
-func (vn *VxNET) UploadVxImg(paramName, file string) string {
+func (vn *VxNET) UploadVxImg(paramName, file string) (string, error) {
 	fd, err := os.Open(file)
 	if err != nil {
 		log.Fatalf("open file: %s failure: %v\n", file, err)
@@ -132,20 +151,27 @@ func (vn *VxNET) UploadVxImg(paramName, file string) string {
 	part := multipart.NewWriter(body)
 	partBody, err := part.CreateFormFile(paramName, filepath.Base(file))
 	if err != nil {
-		log.Fatalf("create form upload file failure: %v\n", err)
+		log.Printf("create form upload file failure: %v\n", err)
+		return "", err
 	}
 	io.Copy(partBody, fd)
 	fd.Close()
 	part.Close()
 
-	uploadURL := fmt.Sprintf(imgUploadingURL, vn.GetAccessToken())
+	token, err := vn.GetAccessToken()
+	if err != nil {
+		return "", err
+	}
+	uploadURL := fmt.Sprintf(imgUploadingURL, token)
 	resp, err := http.Post(uploadURL, part.FormDataContentType(), body)
 	if err != nil {
-		log.Fatalf("request uploadimg: %s failure: %v\n", uploadURL, err)
+		log.Printf("request uploadimg: %s failure: %v\n", uploadURL, err)
+		return "", err
 	}
 	respBytes, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		log.Fatalf("read response failure: %v\n", err)
+		log.Printf("read response failure: %v\n", err)
+		return "", err
 	}
 	resp.Body.Close()
 	log.Printf("request uploadimg success: %s\n", string(respBytes))
@@ -156,7 +182,20 @@ func (vn *VxNET) UploadVxImg(paramName, file string) string {
 	imgResp := new(ImgUploadResp)
 	err = json.Unmarshal(respBytes, imgResp)
 	if err != nil {
-		log.Fatalf("json unmarshal failure: %v\n", err)
+		log.Printf("json unmarshal failure: %v\n", err)
+		return "", err
 	}
-	return imgResp.URL
+	return imgResp.URL, nil
+}
+
+func (vn *VxNET) PostMessageBroadcast(mediaId string) (bool, error) {
+	token, err := vn.GetAccessToken()
+	if err != nil {
+		return false, err
+	}
+	broadcastURL := fmt.Sprintf(messPushURL, token)
+	http.Get(broadcastURL)
+
+	return true, nil
+
 }

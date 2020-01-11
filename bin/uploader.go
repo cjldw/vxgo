@@ -46,7 +46,10 @@ func main() {
 		"description": `{"title":VIDEO_TITLE, "introduction":INTRODUCTION}`,
 	}
 	vxNET := vxgo.GetVxNet()
-	token := vxNET.GetAccessToken()
+	token, err := vxNET.GetAccessToken()
+	if err != nil {
+		log.Fatal(err)
+	}
 	url := fmt.Sprintf("https://api.weixin.qq.com/cgi-bin/material/add_material?access_token=%s&type=image", token)
 	request, err := newfileUploadRequest(url, extraParams, "media", "E:/codelab/go/zhanqiTV/vxgo/demo.jpg")
 	if err != nil {

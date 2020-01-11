@@ -6,7 +6,7 @@ type VxAccessToken struct {
 }
 
 type VxNewsForm struct {
-	Articles []VxNews `json:"articles"`
+	Articles []*VxNews `json:"articles"`
 }
 
 type VxNews struct {
@@ -24,4 +24,33 @@ type VxNews struct {
 type VxMaterial struct {
 	URL     string `json:"url"`
 	MediaId string `json:"media_id"`
+}
+
+type NewCommitPoint struct {
+	CommitID string
+	Files    []string
+}
+
+type DailyPoetry struct {
+	Status    string `json:"status"`
+	Data      PoetryData `json:"data"`
+	IpAddress string `json:"ipAddress"`
+	Token     string `json:"token"`
+	Warning   string `json:"warning"`
+}
+
+type PoetryData struct {
+	Id         string `json:"id"`
+	Content    string `json:"content"`
+	Popularity int    `json:"popularity"`
+	Origin     struct {
+		Title     string   `json:"title"`
+		Dynasty   string   `json:"dynasty"`
+		Author    string   `json:"author"`
+		Content   []string `json:"content"`
+		Translate string   `json:"translate"`
+	} `json:"origin"`
+	MatchTags         []string `json:"matchTags"`
+	RecommendedReason string   `json:"recommendedReason"`
+	CacheAt           string   `json:"cacheAt"`
 }
