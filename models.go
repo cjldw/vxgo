@@ -48,7 +48,7 @@ type PoetryData struct {
 		Dynasty   string   `json:"dynasty"`
 		Author    string   `json:"author"`
 		Content   []string `json:"content"`
-		Translate string   `json:"translate"`
+		Translate string   `json:"translate,omitempty"`
 	} `json:"origin"`
 	MatchTags         []string `json:"matchTags"`
 	RecommendedReason string   `json:"recommendedReason"`

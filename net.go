@@ -199,3 +199,7 @@ func (vn *VxNET) PostMessageBroadcast(mediaId string) (bool, error) {
 	return true, nil
 
 }
+
+func (vn *VxNET) MessageBroadcast(mediaId, mediaType string) {
+
+}

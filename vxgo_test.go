@@ -111,3 +111,8 @@ func TestParseVxNews(t *testing.T) {
 		t.Fatal(e)
 	}
 }
+
+func TestParsePoetry(t *testing.T)  {
+	c := parsePoetry()
+	t.Log(c)
+}

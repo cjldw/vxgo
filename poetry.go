@@ -27,5 +27,6 @@ func GetDailyPoetry() (*DailyPoetry, error) {
 		log.Printf("json unmarshal poetry resp failure: %v\n", err)
 		return nil, err
 	}
+	log.Printf("get daily poetry: %#v\n", dailyPoetry)
 	return dailyPoetry, nil
 }

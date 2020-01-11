@@ -13,18 +13,21 @@ import (
 )
 
 var weChatTPL = `
-{{ if poetry }}
-    <h1>{{.poetry.Data.Origin.Title}}</h1>
-	{{ range .poetry.Data.Origin.Content}}
-		<p>{{.element}}</p>
+<div style="text-align: center;">
+<h1 style="margin:20px 0px; font-weight: 600;">撸完诗歌，撸技术， 做一个有逼格的程序员</h1>
+<hr>
+{{ if .Data }}
+    <h4 style="margin: 10px 0; font-size:15px">今日诗歌推荐《{{.Data.Origin.Title}}》</h4>
+	{{ range .Data.Origin.Content}}
+		<p style="text-align:left; font-size:13px; text-indent:12px">{{.}}</p>
 	{{end}}
-	<span>{{poetry.Data.Origin.Author}}</span>
+	<p style="text-align: right;font-size:12px;">{{.Data.Origin.Dynasty}}-{{.Data.Origin.Author}}</p>
 {{else}}
-    <h1>今日诗歌歇菜了</h1>
+    <h4 style="margin: 10px 0; font-size:15px">今日诗歌歇菜了</h4>
 	<p>................</p>
 {{end}}
-
-<p> 点击左下角阅读更多</p>
+<strong> 点击左下角阅读更多, 进入正题</strong>
+</div>
 `
 
 func ParseVxNews(file string) (*VxNews, error) {
@@ -34,17 +37,13 @@ func ParseVxNews(file string) (*VxNews, error) {
 		log.Printf("open file: %s failure: %v\n", file, err)
 		return nil, err
 	}
-	scanner := bufio.NewScanner(fd)
-	poetry, _ := GetDailyPoetry()
-	writer := bytes.NewBufferString(weChatTPL)
-	_ = template.New("WeChatTPL").Execute(writer, poetry)
-
 	vxNews := &VxNews{
 		ThumbMediaId: "drwaZ2CgYKBpJE7GXmYSXPNSX_O5SLf4P5oyx_aiMLo",
-		Content:      writer.String(),
+		Content:      parsePoetry(),
 		ShowCoverPic: "1",
 	}
 
+	scanner := bufio.NewScanner(fd)
 	for scanner.Scan() {
 		txt := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(txt, "<!--more-->") {
@@ -88,4 +87,18 @@ func ParseVxNews(file string) (*VxNews, error) {
 	}
 	return vxNews, nil
 
+}
+
+func parsePoetry() string {
+	poetry, _ := GetDailyPoetry()
+	writer := new(bytes.Buffer)
+	tpl, err := template.New("WeChatTPL").Parse(weChatTPL)
+	if err != nil {
+		log.Printf("template parse failure %v\n", err)
+	}
+	err = tpl.Execute(writer, poetry)
+	if err != nil {
+		log.Printf("template execute failure %v\n", err)
+	}
+	return writer.String()
 }
