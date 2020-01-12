@@ -34,7 +34,7 @@ var txtTpl = `
 {{range . }}
 <p style="margin: 20px 0; text-align: center; font-size: 12px;">{{.}}</p>
 {{end}}
-<strong> 点击左下角阅读更多, 进入正题</strong>
+<p style="margin: 20px 0; text-align:center; font-size:12px; font-weight: 600;"> 点击左下角阅读原文, 查看更多!</strong>
 `
 
 func ParseVxNews(file string) (*VxNews, error) {
@@ -46,13 +46,12 @@ func ParseVxNews(file string) (*VxNews, error) {
 	}
 	vxNews := &VxNews{
 		ThumbMediaId: "drwaZ2CgYKBpJE7GXmYSXPNSX_O5SLf4P5oyx_aiMLo",
-		Content:      parsePoetry(),
 		ShowCoverPic: "1",
 	}
 
 	lineNo := 1
 	var (
-		headLines      []string
+		headlines      []string
 		headLineOffset int
 	)
 
@@ -60,18 +59,17 @@ func ParseVxNews(file string) (*VxNews, error) {
 	for scanner.Scan() {
 		lineNo++
 		txt := strings.TrimSpace(scanner.Text())
-		if strings.HasPrefix(txt, "<!--more-->") {
+		if strings.HasPrefix(txt, "<!--") {
 			break
 		}
-		if strings.HasPrefix(txt, "---") || lineNo > 1 {
+		if strings.HasPrefix(txt, "---") && lineNo > 2 {
 			headLineOffset = lineNo
 			continue
 		}
-		if lineNo >= headLineOffset {
-			headLines = append(headLines, txt)
+		if headLineOffset > 0 && lineNo >= headLineOffset {
+			headlines = append(headlines, txt)
 			continue
 		}
-
 		if strings.HasPrefix(txt, "title") {
 			title := strings.Split(txt, ":")
 			if len(title) >= 2 {
@@ -108,6 +106,7 @@ func ParseVxNews(file string) (*VxNews, error) {
 			continue
 		}
 	}
+	vxNews.Content = parseHeadlines(headlines)
 	return vxNews, nil
 
 }
