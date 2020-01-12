@@ -188,16 +188,33 @@ func (vn *VxNET) UploadVxImg(paramName, file string) (string, error) {
 	return imgResp.URL, nil
 }
 
-func (vn *VxNET) PostMessageBroadcast(mediaId string) (bool, error) {
+func (vn *VxNET) PostNewsBroadcast(mediaId string, filter *MessSendFilter) (bool, error) {
 	token, err := vn.GetAccessToken()
 	if err != nil {
 		return false, err
 	}
 	broadcastURL := fmt.Sprintf(messPushURL, token)
-	http.Get(broadcastURL)
+	newsSend := NewsSend{
+		MsgType:           "mpnews",
+		Filter:            filter,
+		MpNews:            MediaId{MediaId: mediaId},
+		SendIgnoreReprint: 0,
+	}
+	postBytes, err := json.Marshal(newsSend)
+	if err != nil {
+		log.Printf("json marshal news post data failure: %v\n", err)
+		return false, err
+	}
+	resp, err := http.Post(broadcastURL, "application/json;charset=utf-8", bytes.NewBuffer(postBytes))
+	if err != nil {
+		log.Printf("post news to WeChat broadcast failure: %v\n", err)
+		return false, err
+	}
+	defer resp.Body.Close()
 
+	respBytes, _ := ioutil.ReadAll(resp.Body)
+	log.Printf("post news to WeChat broadcast status: %s\n", string(respBytes))
 	return true, nil
-
 }
 
 func (vn *VxNET) MessageBroadcast(mediaId, mediaType string) {

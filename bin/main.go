@@ -11,6 +11,10 @@ func main() {
 	if err != nil {
 		log.Fatalf("git commit log failure: %v\n", err)
 	}
+	_, exists, _ := vxgo.GetDumper().QueryCommit(commit.CommitID)
+	if exists {
+		log.Fatalf("this commit id processed")
+	}
 	var vxNewsList []*vxgo.VxNews
 	for i := 0; i < len(commit.Files); i++ {
 		file := commit.Files[i]
@@ -26,6 +30,12 @@ func main() {
 		log.Fatalf("post WeChat News failure: %v\n", err)
 	}
 	log.Printf("post WeChat news status: %v\n", vxm)
-	success, _ := vxgo.GetVxNet().PostMessageBroadcast(vxm.MediaId)
-	log.Printf("broadcast %s status: %v\n", vxm.MediaId, success)
+	// personal WeChat Account no this privileges
+	// success, _ := vxgo.GetVxNet().PostNewsBroadcast(vxm.MediaId, nil)
+	// log.Printf("broadcast %s status: %v\n", vxm.MediaId, success)
+	success, err := vxgo.GetDumper().SaveCommit(commit.CommitID, true)
+	if err != nil {
+		log.Fatalf("save commit:%s failure: %v\n", commit.CommitID, err)
+	}
+	log.Printf("save commit: %s status: %v\n", commit.CommitID, success)
 }

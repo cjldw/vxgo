@@ -1,6 +1,7 @@
 package vxgo
 
 import (
+	"encoding/json"
 	"fmt"
 	"path/filepath"
 	"testing"
@@ -112,7 +113,19 @@ func TestParseVxNews(t *testing.T) {
 	}
 }
 
-func TestParsePoetry(t *testing.T)  {
-	c := parsePoetry()
-	t.Log(c)
+func TestParsePoetry(t *testing.T) {
+	vxm := VxMaterial{
+		URL:     "http://www.qq.com",
+		MediaId: "aaabbbcccee",
+	}
+	b, e := json.Marshal(vxm)
+	t.Log(vxm, string(b), e)
+	//c := parsePoetry()
+	//t.Log(c)
+}
+
+func TestGetDumper(t *testing.T) {
+	dump := GetDumper()
+	b, e := dump.SaveCommit("isLoad", true)
+	t.Log(b, e)
 }

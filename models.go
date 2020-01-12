@@ -21,9 +21,13 @@ type VxNews struct {
 	OnlyFansCanComment uint32 `json:"only_fans_can_comment"`
 }
 
-type VxMaterial struct {
-	URL     string `json:"url"`
+type MediaId struct {
 	MediaId string `json:"media_id"`
+}
+
+type VxMaterial struct {
+	MediaId string `json:"media_id"`
+	URL     string `json:"url"`
 }
 
 type NewCommitPoint struct {
@@ -32,11 +36,11 @@ type NewCommitPoint struct {
 }
 
 type DailyPoetry struct {
-	Status    string `json:"status"`
+	Status    string     `json:"status"`
 	Data      PoetryData `json:"data"`
-	IpAddress string `json:"ipAddress"`
-	Token     string `json:"token"`
-	Warning   string `json:"warning"`
+	IpAddress string     `json:"ipAddress"`
+	Token     string     `json:"token"`
+	Warning   string     `json:"warning"`
 }
 
 type PoetryData struct {
@@ -53,4 +57,16 @@ type PoetryData struct {
 	MatchTags         []string `json:"matchTags"`
 	RecommendedReason string   `json:"recommendedReason"`
 	CacheAt           string   `json:"cacheAt"`
+}
+
+type MessSendFilter struct {
+	IsToAll bool `json:"is_to_all"`
+	TagId   int  `json:"tag_id"`
+}
+
+type NewsSend struct {
+	Filter            *MessSendFilter `json:"filter,omitempty"`
+	MpNews            MediaId         `json:"mpnews"`
+	MsgType           string          `json:"msgtype"`
+	SendIgnoreReprint int             `json:"send_ignore_reprint"`
 }
