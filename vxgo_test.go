@@ -129,3 +129,13 @@ func TestGetDumper(t *testing.T) {
 	b, e := dump.SaveCommit("isLoad", true)
 	t.Log(b, e)
 }
+
+func TestParseHeadlines(t *testing.T) {
+	headlines := []string{
+		"============",
+		"yyyyyyyyyyyy",
+		"xxxxxxxxxxxxx",
+	}
+	r := parseHeadlines(headlines)
+	t.Log(r)
+}

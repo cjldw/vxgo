@@ -30,6 +30,13 @@ var weChatTPL = `
 </div>
 `
 
+var txtTpl = `
+{{range . }}
+<p style="margin: 20px 0; text-align: center; font-size: 12px;">{{.}}</p>
+{{end}}
+<strong> 点击左下角阅读更多, 进入正题</strong>
+`
+
 func ParseVxNews(file string) (*VxNews, error) {
 
 	fd, err := os.Open(file)
@@ -43,12 +50,28 @@ func ParseVxNews(file string) (*VxNews, error) {
 		ShowCoverPic: "1",
 	}
 
+	lineNo := 1
+	var (
+		headLines      []string
+		headLineOffset int
+	)
+
 	scanner := bufio.NewScanner(fd)
 	for scanner.Scan() {
+		lineNo++
 		txt := strings.TrimSpace(scanner.Text())
 		if strings.HasPrefix(txt, "<!--more-->") {
 			break
 		}
+		if strings.HasPrefix(txt, "---") || lineNo > 1 {
+			headLineOffset = lineNo
+			continue
+		}
+		if lineNo >= headLineOffset {
+			headLines = append(headLines, txt)
+			continue
+		}
+
 		if strings.HasPrefix(txt, "title") {
 			title := strings.Split(txt, ":")
 			if len(title) >= 2 {
@@ -101,4 +124,20 @@ func parsePoetry() string {
 		log.Printf("template execute failure %v\n", err)
 	}
 	return writer.String()
+}
+
+func parseHeadlines(headlines []string) string {
+	w := new(bytes.Buffer)
+	tpl, err := template.New("txtTpl").Parse(txtTpl)
+	if err != nil {
+		log.Printf("template parse failure: %v\n", err)
+		return ""
+	}
+	err = tpl.Execute(w, headlines)
+	if err != nil {
+		log.Printf("execute template failure: %v\n", err)
+		return ""
+	}
+	return w.String()
+
 }
