@@ -7,6 +7,8 @@ const (
 	blogURL     = "https://loovien.github.io"
 	gitRepoName = "blog-code"
 	workDir     = "/tmp"
+	webAddr     = "localhost:4000"
+	hexoBin     = "/opt/nodejs/bin/hexo"
 )
 
 const (

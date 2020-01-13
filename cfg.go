@@ -14,6 +14,8 @@ type CFG struct {
 	GitRepo     string `json:"gitRepo"`
 	GitRepoName string `json:"gitRepoName"`
 	WorkDir     string `json:"workDir"`
+	WebAddr     string `json:"webAddr"`
+	HexoBin     string `json:"hexoBin"`
 }
 
 var (
@@ -23,9 +25,8 @@ var (
 func init() {
 	_, file, _, _ := runtime.Caller(0)
 	baseDir := filepath.Dir(file)
-	cfgFile := filepath.Join(baseDir, ".vxgo")
+	cfgFile := filepath.Join(baseDir, ".env.json")
 	fileBytes, err := ioutil.ReadFile(cfgFile)
-	log.Printf("load configurate file: %s\n", cfgFile)
 	if err != nil {
 		log.Printf("file not found: %s \n", cfgFile)
 		VxCfg = &CFG{
@@ -34,6 +35,8 @@ func init() {
 			GitRepo:     gitRepo,
 			GitRepoName: gitRepoName,
 			WorkDir:     workDir,
+			WebAddr:     webAddr,
+			HexoBin:     hexoBin,
 		}
 		return
 	}

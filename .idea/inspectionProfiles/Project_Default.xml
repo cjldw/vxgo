@@ -9,6 +9,7 @@
         <function importPath="fmt" name="Println" />
         <function importPath="fmt" name="Print" />
         <function importPath="io" name="Copy" />
+        <function importPath="vxgo" name="HexoDeploy" />
       </functions>
       <methods>
         <method importPath="hash" receiver="Hash" name="Write" />
@@ -24,6 +25,7 @@
         <method importPath="os" receiver="*File" name="Close" />
         <method importPath="mime/multipart" receiver="*Writer" name="Close" />
         <method importPath="io" receiver="ReadCloser" name="Close" />
+        <method importPath="net/http" receiver="ResponseWriter" name="Write" />
       </methods>
     </inspection_tool>
   </profile>
