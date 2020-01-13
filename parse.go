@@ -77,6 +77,19 @@ func ParseVxNews(file string) (*VxNews, error) {
 			}
 			continue
 		}
+		if strings.HasPrefix(txt, "image") {
+			imagePath := strings.Split(txt, ":")
+			if len(imagePath) >= 2 {
+				params := map[string]string{
+					"description": `{"title":"博客图片素材", "introduction":"图片博客素材"}`,
+				}
+				absFilePath := filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName, strings.TrimSpace(imagePath[1]))
+				vxm := GetVxNet().PostPersistentMaterial("media", absFilePath, imageType, params)
+				if len(vxm.MediaId) > 0 {
+					vxNews.ThumbMediaId = vxm.MediaId
+				}
+			}
+		}
 		if strings.HasPrefix(txt, "date") {
 			date := strings.Split(txt, "date:")
 			if len(date) < 2 {

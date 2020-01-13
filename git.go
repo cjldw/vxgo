@@ -5,9 +5,19 @@ import (
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
+	"os"
 	"path/filepath"
 	"strings"
 )
+
+func IsClonedRepo() bool {
+	repoPath := filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName)
+	_, err := os.Stat(repoPath)
+	if err != nil {
+		return false
+	}
+	return true
+}
 
 func CloneRepo() error {
 	r, err := git.PlainClone(filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName), false, &git.CloneOptions{
@@ -69,7 +79,7 @@ func PullRepo() error {
 func GitShowCase() (*NewCommitPoint, error) {
 	r, err := git.PlainOpen(filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName))
 	if err != nil {
-		log.Printf("open git repository failure: %v\n", err)
+		log.Printf("can't open code repository failure: %v\n", err)
 		return nil, err
 	}
 	ref, err := r.Head()

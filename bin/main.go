@@ -6,6 +6,9 @@ import (
 )
 
 func main() {
+	if !vxgo.IsClonedRepo() {
+		_ = vxgo.CloneRepo()
+	}
 	_ = vxgo.PullRepo()
 	commit, err := vxgo.GitShowCase()
 	if err != nil {
