@@ -4,8 +4,6 @@ import (
 	"encoding/json"
 	"io/ioutil"
 	"log"
-	"path/filepath"
-	"runtime"
 )
 
 type CFG struct {
@@ -23,9 +21,6 @@ var (
 )
 
 func init() {
-	_, file, _, _ := runtime.Caller(0)
-	baseDir := filepath.Dir(file)
-	cfgFile := filepath.Join(baseDir, ".env.json")
 	fileBytes, err := ioutil.ReadFile(cfgFile)
 	if err != nil {
 		log.Printf("file not found: %s \n", cfgFile)

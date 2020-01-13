@@ -9,6 +9,7 @@ const (
 	workDir     = "/tmp"
 	webAddr     = "localhost:4000"
 	hexoBin     = "/opt/nodejs/bin/hexo"
+	cfgFile     = ".env.json"
 )
 
 const (

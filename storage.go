@@ -6,8 +6,6 @@ import (
 	"io/ioutil"
 	"log"
 	"os"
-	"path/filepath"
-	"runtime"
 	"sync"
 )
 
@@ -28,8 +26,7 @@ var (
 )
 
 func GetDumper(filename ...string) *Dumper {
-	_, file, _, _ := runtime.Caller(0)
-	dumpfile := filepath.Join(filepath.Dir(file), "dumpfile.json")
+	dumpfile := "dumpfile.json"
 	if len(filename) > 0 {
 		dumpfile = filename[0]
 	}

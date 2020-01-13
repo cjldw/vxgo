@@ -2,6 +2,7 @@ package vxgo
 
 import (
 	"fmt"
+	"log"
 	"net/http"
 )
 
@@ -15,6 +16,7 @@ func NewWebSvr() *WebSvr {
 func (ws *WebSvr) Listen() error {
 	mux := http.NewServeMux()
 	mux.HandleFunc("/blog/built.json", ws.handleBuilt)
+	log.Printf("run websvr listen at: %s\n", VxCfg.WebAddr)
 	return http.ListenAndServe(VxCfg.WebAddr, mux)
 }
 
