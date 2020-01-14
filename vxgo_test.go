@@ -3,6 +3,7 @@ package vxgo
 import (
 	"encoding/json"
 	"fmt"
+	"io/ioutil"
 	"path/filepath"
 	"testing"
 	"time"
@@ -138,4 +139,24 @@ func TestParseHeadlines(t *testing.T) {
 	}
 	r := parseHeadlines(headlines)
 	t.Log(r)
+}
+
+func TestGitPullCmd(t *testing.T) {
+	b, e := GitPullCmd()
+	t.Log(b, e)
+	if e != nil {
+		t.FailNow()
+	}
+}
+
+func TestGitShowCaseCmd(t *testing.T) {
+	b, e := GitShowCaseCmd()
+	t.Log(b, e)
+	if e != nil {
+		t.FailNow()
+	}
+	f := "e:" + b.Files[0]
+	bb, err := ioutil.ReadFile(f)
+	t.Log(string(bb), err)
+
 }

@@ -1,11 +1,14 @@
 package vxgo
 
 import (
+	"bufio"
+	"bytes"
 	"errors"
 	"gopkg.in/src-d/go-git.v4"
 	"gopkg.in/src-d/go-git.v4/plumbing/object"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"strings"
 )
@@ -121,4 +124,62 @@ func GitShowCase() (*NewCommitPoint, error) {
 	}
 
 	return commitPoint, nil
+}
+
+/// go-git package use don't happy
+
+func GitCloneCmd() (bool, error) {
+	gitRepoDir := filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName)
+	_, err := os.Stat(gitRepoDir)
+	if err == nil {
+		log.Printf("gitRepoDir is clone : %v\n", err)
+		return false, errors.New("gitRepoDir: " + gitRepoDir + " exists")
+	}
+	cmd := exec.Command("git", "clone", VxCfg.GitRepo)
+	cmd.Dir = VxCfg.WorkDir
+	resultBytes, err := cmd.Output()
+	if err != nil {
+		return false, err
+	}
+	log.Printf("git clone " + VxCfg.GitRepo + " status: " + string(resultBytes) + "\n")
+	return true, nil
+}
+
+func GitPullCmd() (bool, error) {
+	gitRepoDir := filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName)
+	cmd := exec.Command("git", "pull")
+	cmd.Dir = gitRepoDir
+	resultBytes, err := cmd.Output()
+	log.Printf("run git pull output: %s\n", string(resultBytes))
+	if err != nil {
+		return false, err
+	}
+	return true, nil
+}
+
+func GitShowCaseCmd() (*NewCommitPoint, error) {
+	gitRepoDir := filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName)
+	cmd := exec.Command("git", "show", "-n", "1", "--name-only", "--pretty=%H")
+	cmd.Dir = gitRepoDir
+	rsBytes, err := cmd.Output()
+	if err != nil {
+		return nil, err
+	}
+
+	lineNo := 0
+	scan := bufio.NewScanner(bytes.NewBuffer(rsBytes))
+	commit := new(NewCommitPoint)
+	for scan.Scan() {
+		lineNo++
+		txt := strings.Trim(strings.TrimSpace(scan.Text()), "\"")
+		if len(txt) <= 0 {
+			continue
+		}
+		if lineNo <= 1 {
+			commit.CommitID = txt
+			continue
+		}
+		commit.Files = append(commit.Files, filepath.Join(VxCfg.WorkDir, VxCfg.GitRepoName, txt))
+	}
+	return commit, nil
 }
