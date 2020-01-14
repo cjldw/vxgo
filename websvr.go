@@ -1,7 +1,6 @@
 package vxgo
 
 import (
-	"fmt"
 	"log"
 	"net/http"
 )
@@ -21,14 +20,15 @@ func (ws *WebSvr) Listen() error {
 }
 
 func (ws *WebSvr) handleBuilt(writer http.ResponseWriter, request *http.Request) {
-	WeChatSyncRun()
-	output, err := HexoDeploy()
-	if err != nil {
-		result := fmt.Sprintf("{\"code\": 1, \"message\":\"hexo deploy failure\", \"data\": \"%s\"}", output)
-		writer.Write([]byte(result))
-		return
-	}
-	result := fmt.Sprintf("{\"code\": 0, \"message\":\"hexo deploy success\", \"data\": \"%s\"}", output)
-	writer.Write([]byte(result))
+	go func() {
+		WeChatSyncRun()
+		output, err := HexoDeploy()
+		if err != nil {
+			log.Printf("hexo deploy failure: %s,  %v\n", output, err)
+			return
+		}
+		log.Printf("hexo deploy success: %s\n", output)
+	}()
+	writer.Write([]byte(`{"code":0, "message":"success", "data":{"tips":"job dispatched background"}}`))
 	return
 }
