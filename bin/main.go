@@ -34,7 +34,7 @@ func main() {
 			webSvr := vxgo.NewWebSvr()
 			err := webSvr.Listen()
 			if err != nil {
-				log.Fatalf("websvr stop %v\n", err)
+				log.Printf("websvr stop %v\n", err)
 			}
 		}()
 		sig := <-sigChan

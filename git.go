@@ -64,7 +64,7 @@ func PullRepo() error {
 	}
 	wt, err := r.Worktree()
 	if err != nil {
-		log.Fatalf("repository worktree failure: %v\n", err)
+		log.Printf("repository worktree failure: %v\n", err)
 		return err
 	}
 	err = wt.Pull(&git.PullOptions{

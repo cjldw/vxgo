@@ -21,7 +21,10 @@ func (ws *WebSvr) Listen() error {
 
 func (ws *WebSvr) handleBuilt(writer http.ResponseWriter, request *http.Request) {
 	go func() {
-		WeChatSyncRun()
+		err := WeChatSyncRun()
+		if err != nil {
+			log.Printf("WeChat synchronize failure: %v\n", err)
+		}
 		output, err := HexoDeploy()
 		if err != nil {
 			log.Printf("hexo deploy failure: %s,  %v\n", output, err)

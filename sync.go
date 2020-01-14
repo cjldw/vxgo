@@ -2,18 +2,20 @@ package vxgo
 
 import "log"
 
-func WeChatSyncRun() {
+func WeChatSyncRun() error {
 	if !IsClonedRepo() {
 		_ = CloneRepo()
 	}
 	_ = PullRepo()
 	commit, err := GitShowCase()
 	if err != nil {
-		log.Fatalf("git commit log failure: %v\n", err)
+		log.Printf("git commit log failure: %v\n", err)
+		return err
 	}
 	_, exists, _ := GetDumper().QueryCommit(commit.CommitID)
 	if exists {
-		log.Fatalf("this commit id processed")
+		log.Printf("this commit id processed")
+		return nil
 	}
 	var vxNewsList []*VxNews
 	for i := 0; i < len(commit.Files); i++ {
@@ -27,7 +29,8 @@ func WeChatSyncRun() {
 	}
 	vxm, err := GetVxNet().PostVxNews(vxNewsList)
 	if err != nil {
-		log.Fatalf("post WeChat News failure: %v\n", err)
+		log.Printf("post WeChat News failure: %v\n", err)
+		return err
 	}
 	log.Printf("post WeChat news status: %v\n", vxm)
 	// personal WeChat Account no this privileges
@@ -35,7 +38,8 @@ func WeChatSyncRun() {
 	// log.Printf("broadcast %s status: %v\n", vxm.MediaId, success)
 	success, err := GetDumper().SaveCommit(commit.CommitID, true)
 	if err != nil {
-		log.Fatalf("save commit:%s failure: %v\n", commit.CommitID, err)
+		log.Printf("save commit:%s failure: %v\n", commit.CommitID, err)
 	}
 	log.Printf("save commit: %s status: %v\n", commit.CommitID, success)
+	return nil
 }
