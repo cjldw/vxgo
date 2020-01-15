@@ -30,7 +30,7 @@ func (ws *WebSvr) handleBuilt(writer http.ResponseWriter, request *http.Request)
 			log.Printf("hexo deploy failure: %s,  %v\n", output, err)
 			return
 		}
-		log.Printf("hexo deploy success: %s\n", output)
+		log.Println("hexo deploy success")
 	}()
 	writer.Write([]byte(`{"code":0, "message":"success", "data":{"tips":"job dispatched background"}}`))
 	return
